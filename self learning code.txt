@@ -1,0 +1,106 @@
+
+# coding: utf-8
+
+# In[25]:
+
+import csv
+import sys
+from collections import Counter
+from math import sqrt
+import numpy as np
+
+# Creates a list containing 5 lists, each of 8 items, all set to 0
+w, h = 60, 85;
+
+array=list()
+label=list()
+with open('dataSet.csv','rt') as f:
+   # reader = csv.reader(f) 
+    reader=np.genfromtxt('dataSet.csv',dtype=np.string_, delimiter=',')
+    number_of_rows=193
+    number_of_cols=68
+    
+    for i in range (number_of_rows):
+        array1=list()
+        for j in range (number_of_cols):
+            if j==67:
+                label.append(reader[i][j].decode('utf-8'))
+                #array1.append(reader[i][j].decode('utf-8'))
+            else:
+              array1.append(float(reader[i][j]))
+
+        array.append(array1)
+        
+        
+    #print(array[84])
+    coordinates = list()
+    for col in range(len(array)):
+        tmp = list()
+        for row in range(len(array[0])):
+            tmp.append(array[col][row])
+            
+        rtmp = tuple(tmp)
+        
+        coordinates.append(rtmp)
+        
+    
+    #print(label)
+        
+    #print(coordinates)
+  #print(coordinates)
+    
+    #input_data = coordinates[:-1] 
+    # print(array)
+ 
+    input_data = {coordinates[ran]:label[ran] for ran in range(len(coordinates))}
+
+with open('py.csv') as csvfile:
+    reader1 = np.genfromtxt(csvfile,dtype=np.string_, delimiter=',')
+    test=list()
+    test_coordinates=list()
+    for col1 in range(67):
+      test.append(float(reader1[col1]))
+    
+    test_coordinates.append(tuple(test))
+    
+
+def euclidean_distance(x, y):
+    if len(x) != len(y):
+        return "Error: try equal length vectors"
+    else:
+        return sqrt(sum([(x[i]-y[i])**2 for i in range(len(y))]))
+def knn_classifier(neighbors, input_data):
+    knn = [input_data[i] for i in neighbors]
+    #print(knn)
+    knn = Counter(knn)
+    classifier, _ = knn.most_common(1)[0]
+    return classifier
+
+def neighbors(k, trained_points, new_point):
+    neighbor_distances = {}
+    for point in trained_points:
+        if point not in neighbor_distances:
+            neighbor_distances[point] = euclidean_distance(point, new_point)
+    least_common = sorted(neighbor_distances.items(), key = lambda x: x[1])
+    
+    k_nearest_neighbors = list(zip(*least_common[:k]))
+    #print(neighbor_distances)
+    return list(k_nearest_neighbors[0])
+
+results = {}
+for item in test_coordinates:
+    results[item] = knn_classifier(neighbors(10,input_data.keys(), item), input_data)
+    
+print (results)
+
+
+
+# In[ ]:
+
+
+
+
+# In[ ]:
+
+
+
